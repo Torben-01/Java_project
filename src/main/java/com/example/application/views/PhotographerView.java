@@ -18,7 +18,7 @@ public class PhotographerView extends VerticalLayout {
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
         addClassName("photographer-view");
-        // Div-Element für das Hintergrundbild
+
         Div backgroundDiv = setStyle();
 
         H1 title = new H1("Willkommen bei Torben Photography");
@@ -27,7 +27,6 @@ public class PhotographerView extends VerticalLayout {
         Paragraph description = new Paragraph("Professionelle Fotografie für jeden Anlass – von Porträts über Autos bis hin zu Hochzeiten.");
         description.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.Bottom.LARGE);
 
-        // Grid-Layout für Kategorien
         HorizontalLayout categoryLayout = new HorizontalLayout();
         categoryLayout.setWidth("80%");
         categoryLayout.setJustifyContentMode(JustifyContentMode.CENTER);
@@ -42,7 +41,12 @@ public class PhotographerView extends VerticalLayout {
         backgroundDiv.add(title, description);
         add(backgroundDiv, categoryLayout);
     }
-
+    /*
+     * Creates a category card with an image, a title and a button
+     * imagePath String name of the image file
+     * title String title of the category
+     * route String route to navigate to when the button is clicked 
+     */
     private VerticalLayout createCategoryCard(String imagePath, String title, String route) {
         Image image = new Image(imagePath, title);
         image.setWidth("300px");
@@ -61,7 +65,9 @@ public class PhotographerView extends VerticalLayout {
 
         return card;
     }
-
+    /*
+     * Sets the style of the background div
+     */
     private Div setStyle() {
         Div backgroundDiv = new Div();
         backgroundDiv.getStyle().set("background-image", "url('background.jpg')");
