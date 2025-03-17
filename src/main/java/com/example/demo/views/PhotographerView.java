@@ -1,4 +1,4 @@
-package com.example.application.views;
+package com.example.demo.views;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -10,7 +10,7 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
-@Route("photography")
+@Route("")
 public class PhotographerView extends VerticalLayout {
 
     public PhotographerView() {

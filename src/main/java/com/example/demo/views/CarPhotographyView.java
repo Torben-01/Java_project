@@ -1,4 +1,4 @@
-package com.example.application.views;
+package com.example.demo.views;
 
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Paragraph;
@@ -13,6 +13,6 @@ public class CarPhotographyView extends VerticalLayout {
         setAlignItems(Alignment.CENTER);
         add(new H1("Autofotografie"));
         add(new Paragraph("Perfekte Inszenierung deines Autos – egal ob Sportwagen oder Oldtimer."));
-        add(new Button("Zurück", event -> event.getSource().getUI().ifPresent(ui -> ui.navigate("photography"))));
+        add(new Button("Zurück", event -> event.getSource().getUI().ifPresent(ui -> ui.navigate(""))));
     }
 }
