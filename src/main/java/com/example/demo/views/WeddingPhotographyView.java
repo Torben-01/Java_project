@@ -2,17 +2,23 @@ package com.example.demo.views;
 
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Paragraph;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.router.Route;
 
 @Route("wedding-photography")
-public class WeddingPhotographyView extends VerticalLayout {
+public class WeddingPhotographyView extends CommonComponents {
 
     public WeddingPhotographyView() {
+        FormLayout formLayout = new FormLayout();
+
         setAlignItems(Alignment.CENTER);
-        add(new H1("Hochzeitsfotografie"));
-        add(new Paragraph("Unvergessliche Momente stilvoll festgehalten – dein perfekter Hochzeitstag in Bildern."));
-        add(new Button("Zurück", event -> event.getSource().getUI().ifPresent(ui -> ui.navigate(""))));
+        setJustifyContentMode(JustifyContentMode.CENTER);
+
+        H1 title = new H1("Hochzeitsfotografie");
+        Paragraph underTitle = new Paragraph("Unvergessliche Momente für die Ewigkeit festhalten.");
+
+        add(title, formLayout);
+        add(underTitle, formLayout);
+        super.createCommonLayout(formLayout);
     }
 }
