@@ -1,14 +1,17 @@
 package com.example.demo.views;
 
+import com.example.demo.services.RequestService;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Paragraph;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.router.Route;
 
 @Route("wedding-photography")
 public class WeddingPhotographyView extends CommonComponents {
 
-    public WeddingPhotographyView() {
+    public WeddingPhotographyView(RequestService requestService) {
+        super(requestService);
+
         FormLayout formLayout = new FormLayout();
 
         setAlignItems(Alignment.CENTER);
@@ -19,6 +22,6 @@ public class WeddingPhotographyView extends CommonComponents {
 
         add(title, formLayout);
         add(underTitle, formLayout);
-        super.createCommonLayout(formLayout);
+        super.createCommonLayout(formLayout, "Hochzeitsfotografie");
     }
 }

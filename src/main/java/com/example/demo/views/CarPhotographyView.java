@@ -1,5 +1,6 @@
 package com.example.demo.views;
 
+import com.example.demo.services.RequestService;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Paragraph;
@@ -10,7 +11,9 @@ import jakarta.annotation.security.PermitAll;
 @PermitAll
 public class CarPhotographyView extends CommonComponents {
 
-    public CarPhotographyView() {
+    public CarPhotographyView(RequestService requestService) {
+        super(requestService);
+
         FormLayout formLayout = new FormLayout();
 
         setAlignItems(Alignment.CENTER);
@@ -21,6 +24,6 @@ public class CarPhotographyView extends CommonComponents {
 
         add(title, formLayout);
         add(underTitle, formLayout);
-        super.createCommonLayout(formLayout);
+        super.createCommonLayout(formLayout, "Autofotografie");
     }
 }
