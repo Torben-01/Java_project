@@ -1,0 +1,51 @@
+name: Deployment
+
+# Startet den kompletten Stack so wie auf dem Server (./deploy.sh) und prüft ihn von außen
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  stack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # "localhost" bekommt von Caddy ein eigenes Zertifikat, dafür ist kein öffentlicher DNS-Eintrag nötig
+      - name: Website mit deploy.sh starten
+        run: ./deploy.sh localhost
+
+      - name: Health-Check über HTTPS
+        run: curl -kfsS https://localhost/actuator/health | grep -q '"status":"UP"'
+
+      - name: HTTP leitet auf HTTPS weiter
+        run: |
+          status=$(curl -s -o /dev/null -w '%{http_code}' http://localhost/)
+          location=$(curl -s -o /dev/null -w '%{redirect_url}' http://localhost/)
+          echo "Status $status nach $location"
+          [ "$status" = "308" ] || [ "$status" = "301" ]
+          [[ "$location" == https://* ]]
+
+      - name: Startseite und Login sind erreichbar
+        run: |
+          curl -kfsS -o /dev/null https://localhost/
+          curl -kfsS -o /dev/null https://localhost/login
+
+      - name: Alle Flyway-Migrationen sind in MySQL angewendet
+        run: |
+          versions=$(docker compose exec -T db sh -c \
+            'mysql -N -uroot -p"$MYSQL_ROOT_PASSWORD" photography_db -e "SELECT version FROM flyway_schema_history WHERE success = 1 AND version IS NOT NULL ORDER BY installed_rank"' 2>/dev/null)
+          echo "$versions"
+          for v in 1 2 3 4; do echo "$versions" | grep -qx "$v"; done
+
+      - name: App läuft im Produktionsmodus
+        run: |
+          docker compose logs app | grep -q "Started PhotographyApplication"
+          ! docker compose logs app | grep -qi "development mode"
+
+      - name: Logs bei Fehlern
+        if: failure()
+        run: docker compose logs --tail 200
