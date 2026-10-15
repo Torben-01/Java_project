@@ -24,8 +24,10 @@ Für die Entwicklung reicht eine eingebettete H2-Datenbank, die unter `./data` g
 
     mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=dev
 
-In IntelliJ in der Run-Konfiguration unter *Active profiles* `dev` eintragen. Im dev-Profil ist die Verwaltung
-unter http://localhost:8080/admin/anfragen mit `admin` / `admin` erreichbar.
+In IntelliJ: *Run → Edit Configurations… → PhotographyApplication → Modify options → Add VM options* und dort
+`-Dspring.profiles.active=dev` eintragen (in IntelliJ Ultimate gibt es dafür auch das Feld *Active profiles*).
+Ohne das Profil versucht die App, sich mit MySQL zu verbinden. Im dev-Profil ist die Verwaltung unter
+http://localhost:8080/admin/anfragen mit `admin` / `admin` erreichbar.
 
 ### Mit MySQL
 
@@ -93,11 +95,67 @@ sichtbares Browserfenster. Beim ersten Lauf lädt Playwright einmalig Chromium h
 
     mvnw.cmd verify -Dheadless=false
 
-Auf GitHub laufen alle Tests bei jedem Push und Pull Request (`.github/workflows/build.yml`).
+Auf GitHub laufen bei jedem Push alle Tests (`.github/workflows/build.yml`). Zusätzlich startet
+`.github/workflows/deployment.yml` den kompletten Server-Stack mit `deploy.sh` und prüft ihn von außen.
+
+## Auf einem Server betreiben
+
+Auf dem Server laufen drei Container: MySQL, die App und [Caddy](https://caddyserver.com) als Webserver, der
+automatisch ein HTTPS-Zertifikat für die Domain besorgt und erneuert. Gestartet wird alles mit einem Befehl.
+
+### Einmalig vorbereiten
+
+1. Ein Linux-Server (z. B. Ubuntu 24.04) mit mindestens 2 GB RAM.
+2. Die Domain zeigt per DNS (A-Record) auf die IP des Servers, die Ports 80 und 443 sind offen.
+3. Docker mit Compose-Plugin installieren, siehe https://docs.docker.com/engine/install/ubuntu/.
+   Danach den eigenen Benutzer in die Gruppe `docker` aufnehmen: `sudo usermod -aG docker $USER`
+   (neu anmelden).
+4. Das Projekt holen:
+
+       git clone https://github.com/Torben-01/Java_project.git
+       cd Java_project
+
+### Starten
+
+    ./deploy.sh meine-domain.de
+
+Beim ersten Aufruf legt das Skript die Datei `.env` mit zufälligen Passwörtern an und zeigt den Admin-Zugang
+an (er steht auch in `.env`). Der erste Start dauert einige Minuten, weil das Image gebaut wird. Danach ist die
+Website unter `https://meine-domain.de` erreichbar, die Verwaltung unter `https://meine-domain.de/admin/anfragen`.
+Die Container starten nach einem Neustart des Servers automatisch wieder.
+
+Weitere Einstellungen wie der Mailserver stehen in `.env`. Nach einer Änderung einfach `./deploy.sh` erneut
+ausführen.
+
+### Bilder hochladen
+
+Die Bilder kommen auf dem Server in den Ordner `bilder/` im Projekt (Aufbau siehe Abschnitt *Bilder*), z. B. per
+`scp` oder SFTP. Sie erscheinen sofort, ein Neustart ist nicht nötig.
+
+### Aktualisieren, Sichern, Logs
+
+| Befehl                           | Wirkung                                                        |
+|----------------------------------|----------------------------------------------------------------|
+| `./update.sh`                    | neuesten Stand aus Git holen und neu starten, Daten bleiben     |
+| `./backup.sh`                    | Datenbank und Bilder nach `backups/` sichern (behält 14 Stück) |
+| `docker compose logs -f app`     | Log der App ansehen                                            |
+| `docker compose ps`              | Status der Container                                           |
+| `docker compose down`            | alles stoppen (Daten bleiben erhalten)                         |
+
+Für eine tägliche Sicherung um 3 Uhr per `crontab -e` eintragen:
+
+    0 3 * * * /home/<benutzer>/Java_project/backup.sh
+
+Eine Sicherung zurückspielen:
+
+    gunzip -c backups/datenbank_<datum>.sql.gz | docker compose exec -T db sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" photography_db'
+
+Die Sicherungen liegen auf demselben Server. Sie sollten zusätzlich regelmäßig an einen anderen Ort kopiert
+werden.
 
 ## Vor der Veröffentlichung
 
 - Impressum und Datenschutzerklärung vervollständigen: Die Angaben in eckigen Klammern in den
   Sprachdateien (`imprint.*`, `privacy.*`) ergänzen und rechtlich prüfen lassen
-- `ADMIN_PASSWORD` auf ein sicheres Passwort setzen
+- `ADMIN_PASSWORD` auf ein sicheres Passwort setzen (macht `deploy.sh` beim ersten Start automatisch)
 - Mailserver und `NOTIFICATION_RECIPIENT` einrichten, damit Anfragen per E-Mail ankommen
