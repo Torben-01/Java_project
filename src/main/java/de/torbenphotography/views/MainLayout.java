@@ -46,7 +46,7 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
                 event -> getUI().ifPresent(ui -> ui.navigate(RequestFormView.class)));
         request.addThemeVariants(ButtonVariant.PRIMARY);
         request.addClassName("desktop-only");
-        navbarActions.add(createLanguageSelect(), request);
+        navbarActions.add(createDarkModeToggle(), createLanguageSelect(), request);
         addToNavbar(navbar);
 
         addToDrawer(createDrawerNavigation());
@@ -112,6 +112,22 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
                     CategoryViews.icon(category).create()));
         }
         return nav;
+    }
+
+    private Component createDarkModeToggle() {
+        Button toggle = new Button();
+        toggle.addThemeVariants(ButtonVariant.TERTIARY);
+        toggle.setAriaLabel(getTranslation("nav.darkmode"));
+        toggle.setTooltipText(getTranslation("nav.darkmode"));
+        toggle.addClassName("dark-mode-toggle");
+        toggle.addClickListener(event -> UserPreferences.toggleDarkMode(dark -> updateDarkModeIcon(toggle, dark)));
+        toggle.addAttachListener(event -> UserPreferences.isDarkMode(dark -> updateDarkModeIcon(toggle, dark)));
+        return toggle;
+    }
+
+    private void updateDarkModeIcon(Button toggle, boolean dark) {
+        // shows what a click switches to
+        toggle.setIcon(dark ? VaadinIcon.SUN_O.create() : VaadinIcon.MOON_O.create());
     }
 
     private Component createLanguageSelect() {

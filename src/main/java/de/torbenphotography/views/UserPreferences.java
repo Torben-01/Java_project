@@ -6,6 +6,9 @@ import java.util.Optional;
 
 import de.torbenphotography.i18n.TranslationProvider;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.page.ColorScheme;
+import com.vaadin.flow.component.page.Page;
+import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.server.VaadinResponse;
 import com.vaadin.flow.server.VaadinService;
@@ -18,6 +21,9 @@ import jakarta.servlet.http.Cookie;
 public final class UserPreferences {
 
     private static final String LANGUAGE_COOKIE = "language";
+    private static final String COLOR_SCHEME_COOKIE = "color-scheme";
+    private static final String DARK = "dark";
+    private static final String LIGHT = "light";
     private static final int ONE_YEAR_IN_SECONDS = 60 * 60 * 24 * 365;
 
     private UserPreferences() {}
@@ -32,6 +38,9 @@ public final class UserPreferences {
                     ui.getSession().setLocale(locale);
                     ui.setLocale(locale);
                 });
+        readCookie(request, COLOR_SCHEME_COOKIE)
+                .map(value -> DARK.equals(value) ? ColorScheme.Value.DARK : ColorScheme.Value.LIGHT)
+                .ifPresent(ui.getPage()::setColorScheme);
     }
 
     /*
@@ -42,6 +51,36 @@ public final class UserPreferences {
         ui.getSession().setLocale(locale);
         writeCookie(LANGUAGE_COOKIE, locale.getLanguage());
         ui.getPage().reload();
+    }
+
+    /*
+     * Tells whether the dark color scheme is shown. Without a stored choice the browser decides
+     * based on the operating system setting, so it has to be asked.
+     */
+    public static void isDarkMode(SerializableConsumer<Boolean> callback) {
+        Page page = UI.getCurrentOrThrow().getPage();
+        ColorScheme.Value scheme = page.getColorScheme();
+        if (scheme == ColorScheme.Value.DARK) {
+            callback.accept(true);
+        } else if (scheme == ColorScheme.Value.LIGHT) {
+            callback.accept(false);
+        } else {
+            page.executeJs("return window.matchMedia('(prefers-color-scheme: dark)').matches")
+                    .then(Boolean.class, callback);
+        }
+    }
+
+    /*
+     * Switches between the light and the dark color scheme and remembers the choice
+     */
+    public static void toggleDarkMode(SerializableConsumer<Boolean> callback) {
+        UI ui = UI.getCurrentOrThrow();
+        isDarkMode(dark -> {
+            boolean newDark = !dark;
+            ui.getPage().setColorScheme(newDark ? ColorScheme.Value.DARK : ColorScheme.Value.LIGHT);
+            writeCookie(COLOR_SCHEME_COOKIE, newDark ? DARK : LIGHT);
+            callback.accept(newDark);
+        });
     }
 
     private static Optional<Locale> supportedLocale(String language) {
