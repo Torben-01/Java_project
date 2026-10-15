@@ -6,6 +6,8 @@ import de.torbenphotography.i18n.TranslationProvider;
 import de.torbenphotography.images.PhotoCategory;
 import de.torbenphotography.services.RequestService;
 import de.torbenphotography.views.admin.RequestsAdminView;
+import de.torbenphotography.views.legal.ImprintView;
+import de.torbenphotography.views.legal.PrivacyView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -176,7 +178,10 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
     }
 
     private Component createFooter() {
-        Div inner = new Div(new Span("© Torben Photography"));
+        Div links = new Div(new RouterLink(getTranslation("footer.imprint"), ImprintView.class),
+                new RouterLink(getTranslation("footer.privacy"), PrivacyView.class));
+        links.addClassName("footer-links");
+        Div inner = new Div(new Span("© Torben Photography"), links);
         inner.addClassName("section");
         Footer footer = new Footer(inner);
         footer.addClassName("footer");

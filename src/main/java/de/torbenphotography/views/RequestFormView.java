@@ -1,23 +1,30 @@
 package de.torbenphotography.views;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import de.torbenphotography.entities.Request;
 import de.torbenphotography.images.PhotoCategory;
 import de.torbenphotography.services.RequestService;
+import de.torbenphotography.views.legal.PrivacyView;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.card.Card;
 import com.vaadin.flow.component.card.CardVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.AnchorTarget;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -32,6 +39,7 @@ import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,10 +134,23 @@ public class RequestFormView extends Div implements HasUrlParameter<String>, Has
         comment.setMaxLength(Request.COMMENT_MAX_LENGTH);
         binder.forField(comment).bind(Request::getComment, Request::setComment);
 
-        FormLayout form = new FormLayout(category, salutation, firstName, lastName, email, date, comment);
+        Anchor privacyLink = new Anchor(RouteConfiguration.forSessionScope().getUrl(PrivacyView.class),
+                getTranslation("request.privacy.link"));
+        privacyLink.setTarget(AnchorTarget.BLANK);
+        Checkbox privacy = new Checkbox();
+        privacy.setLabelComponent(new Span(new Text(getTranslation("request.privacy.before") + " "), privacyLink,
+                new Text(" " + getTranslation("request.privacy.after"))));
+        privacy.setRequiredIndicatorVisible(true);
+        binder.forField(privacy)
+                .withValidator(Boolean::booleanValue, getTranslation("request.privacy.required"))
+                .bind(request -> request.getPrivacyAcceptedAt() != null,
+                        (request, accepted) -> request.setPrivacyAcceptedAt(accepted ? LocalDateTime.now() : null));
+
+        FormLayout form = new FormLayout(category, salutation, firstName, lastName, email, date, comment, privacy);
         form.setResponsiveSteps(new ResponsiveStep("0", 1), new ResponsiveStep("600px", 2));
         form.setColspan(category, 2);
         form.setColspan(comment, 2);
+        form.setColspan(privacy, 2);
 
         Button send = new Button(getTranslation("request.send"), event -> submit());
         send.addThemeVariants(ButtonVariant.PRIMARY);

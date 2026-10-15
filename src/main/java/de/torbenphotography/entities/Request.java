@@ -52,6 +52,9 @@ public class Request {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    // when the visitor agreed to the privacy policy, documents the consent
+    private LocalDateTime privacyAcceptedAt;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     @ColumnDefault("'OFFEN'")
@@ -78,6 +81,7 @@ public class Request {
     public PhotoCategory getCategory() { return category; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public RequestStatus getStatus() { return status; }
+    public LocalDateTime getPrivacyAcceptedAt() { return privacyAcceptedAt; }
 
     public void setSalutation(String salutation) { this.salutation = salutation; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
@@ -87,4 +91,5 @@ public class Request {
     public void setComment(String comment) { this.comment = comment; }
     public void setCategory(PhotoCategory category) { this.category = category; }
     public void setStatus(RequestStatus status) { this.status = status; }
+    public void setPrivacyAcceptedAt(LocalDateTime privacyAcceptedAt) { this.privacyAcceptedAt = privacyAcceptedAt; }
 }
