@@ -17,8 +17,9 @@ In IntelliJ in der Run-Konfiguration unter *Active profiles* `dev` eintragen.
 
 ### Mit MySQL
 
-Voraussetzung ist eine laufende MySQL-Instanz mit der Datenbank `photography_db`. Die Tabellen legt Hibernate
-beim Start selbst an. Die Zugangsdaten werden über Umgebungsvariablen gesetzt:
+Voraussetzung ist eine laufende MySQL-Instanz mit der Datenbank `photography_db`. Die Tabellen legt Flyway beim
+Start an bzw. aktualisiert sie (Skripte unter `src/main/resources/db/migration`). Eine bestehende Datenbank ohne
+Flyway-Historie wird automatisch übernommen. Die Zugangsdaten werden über Umgebungsvariablen gesetzt:
 
 | Variable      | Standard                                         |
 |---------------|--------------------------------------------------|

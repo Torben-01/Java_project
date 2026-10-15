@@ -10,9 +10,12 @@ import de.torbenphotography.images.PhotoCategory;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.dao.DataIntegrityViolationException;
 
 @DataJpaTest
+// use the configured H2 in MySQL mode, the Flyway scripts are written for MySQL
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class RequestRepositoryTest {
 
     @Autowired
