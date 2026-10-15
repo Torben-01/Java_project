@@ -109,6 +109,8 @@ public final class UserPreferences {
         cookie.setPath(request.getContextPath().isEmpty() ? "/" : request.getContextPath());
         cookie.setMaxAge(ONE_YEAR_IN_SECONDS);
         cookie.setHttpOnly(true);
+        // behind the HTTPS proxy the request counts as secure, then the cookie is only sent over HTTPS
+        cookie.setSecure(request.isSecure());
         response.addCookie(cookie);
     }
 }

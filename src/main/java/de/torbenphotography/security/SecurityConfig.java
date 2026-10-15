@@ -32,7 +32,7 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(auth -> auth.requestMatchers("/images/**").permitAll());
+        http.authorizeHttpRequests(auth -> auth.requestMatchers("/images/**", "/actuator/health").permitAll());
         return http.with(VaadinSecurityConfigurer.vaadin(), vaadin -> vaadin.loginView(LoginView.class)).build();
     }
 
