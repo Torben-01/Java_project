@@ -1,0 +1,71 @@
+# Komplette Website: MySQL-Datenbank, die App und Caddy als HTTPS-Proxy.
+# Einstellungen stehen in .env (wird von deploy.sh aus .env.example erzeugt).
+name: torben-photography
+
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: photography_db
+      MYSQL_USER: ${DB_USERNAME:-photography}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD fehlt in .env}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?DB_ROOT_PASSWORD fehlt in .env}
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  app:
+    build: .
+    image: torben-photography:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:mysql://db:3306/photography_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_USERNAME: ${DB_USERNAME:-photography}
+      DB_PASSWORD: ${DB_PASSWORD}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD fehlt in .env}
+      IMAGES_DIR: /app/bilder
+      NOTIFICATION_RECIPIENT: ${NOTIFICATION_RECIPIENT:-}
+      NOTIFICATION_SENDER: ${NOTIFICATION_SENDER:-}
+      NOTIFICATION_CONFIRM_CUSTOMER: ${NOTIFICATION_CONFIRM_CUSTOMER:-false}
+      SPRING_MAIL_HOST: ${MAIL_HOST:-}
+      SPRING_MAIL_PORT: ${MAIL_PORT:-587}
+      SPRING_MAIL_USERNAME: ${MAIL_USERNAME:-}
+      SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: "true"
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: "true"
+    volumes:
+      # Bilder liegen auf dem Server im Ordner ./bilder und können dort jederzeit getauscht werden
+      - ./bilder:/app/bilder:ro
+    expose:
+      - "8080"
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      DOMAIN: ${DOMAIN:?DOMAIN fehlt in .env}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  db-data:
+  caddy-data:
+  caddy-config:

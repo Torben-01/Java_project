@@ -1,0 +1,14 @@
+# Nur Quellcode und Build-Dateien gehören in das Image, keine lokalen Daten
+target/
+node_modules/
+src/main/frontend/generated/
+src/main/bundles/
+bilder/
+data/
+.git/
+.github/
+.idea/
+*.iml
+.env
+backups/
+vite.generated.ts

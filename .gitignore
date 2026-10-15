@@ -46,3 +46,7 @@ build/
 
 ### Lokale H2-Datenbank (dev-Profil) ###
 data/
+
+### Server: Einstellungen mit Passwörtern und Datenbank-Sicherungen ###
+.env
+backups/
