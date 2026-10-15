@@ -2,9 +2,9 @@ name: Deployment
 
 # Startet den kompletten Stack so wie auf dem Server (./deploy.sh) und prüft ihn von außen
 on:
+  # jeder Push auf einen Branch, Pull Requests werden über ihren Branch geprüft
   push:
-    branches: [ main ]
-  pull_request:
+  workflow_dispatch:
 
 jobs:
   stack:

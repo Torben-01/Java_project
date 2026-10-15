@@ -1,9 +1,9 @@
 name: Build
 
 on:
+  # jeder Push auf einen Branch, Pull Requests werden über ihren Branch geprüft
   push:
-    branches: [ main ]
-  pull_request:
+  workflow_dispatch:
 
 jobs:
   build:
