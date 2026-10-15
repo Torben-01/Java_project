@@ -75,4 +75,24 @@ class RequestFormIT extends AbstractUiIT {
         assertThat(stored.getStatus()).isEqualTo(RequestStatus.OFFEN);
         assertThat(stored.getPrivacyAcceptedAt()).isNotNull();
     }
+
+    @Test
+    void otherCategoryCanBeRequested() {
+        SelectElement.getByLabel(page, "Kategorie").selectItem("Sonstiges");
+        ComboBoxElement.getByLabel(page, "Anrede").selectItem("Herr");
+        TextFieldElement.getByLabel(page, "Vorname").setValue("Otto");
+        TextFieldElement.getByLabel(page, "Nachname").setValue("Sonstigtest");
+        EmailFieldElement.getByLabel(page, "E-Mail").setValue("otto.sonstig@example.com");
+        DatePickerElement.getByLabel(page, "Wunschtermin").setValue(LocalDate.now().plusDays(30));
+        TextAreaElement.getByLabel(page, "Kommentar").setValue("Produktfotos für meinen Onlineshop");
+        CheckboxElement.getByLabel(page, "Datenschutzerklärung").check();
+        ButtonElement.getByText(page, "Anfrage senden").click();
+
+        CardElement.getByTitle(page, "Vielen Dank, Otto!").assertVisible();
+        Request stored = requestRepository.findAll().stream()
+                .filter(request -> "otto.sonstig@example.com".equals(request.getEmail()))
+                .findFirst()
+                .orElseThrow();
+        assertThat(stored.getCategory()).isEqualTo(PhotoCategory.SONSTIGES);
+    }
 }

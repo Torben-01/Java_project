@@ -105,7 +105,7 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
         RouterLink home = new RouterLink(getTranslation("nav.home"), HomeView.class);
         home.setHighlightCondition(HighlightConditions.sameLocation());
         nav.add(home);
-        for (PhotoCategory category : PhotoCategory.values()) {
+        for (PhotoCategory category : PhotoCategory.showcases()) {
             nav.add(new RouterLink(CategoryViews.title(category), CategoryViews.viewClass(category)));
         }
         if (authenticationContext.hasRole(RequestService.ADMIN_ROLE)) {
@@ -122,7 +122,7 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
         if (authenticationContext.hasRole(RequestService.ADMIN_ROLE)) {
             nav.addItem(new SideNavItem(getTranslation("nav.admin"), RequestsAdminView.class, VaadinIcon.INBOX.create()));
         }
-        for (PhotoCategory category : PhotoCategory.values()) {
+        for (PhotoCategory category : PhotoCategory.showcases()) {
             nav.addItem(new SideNavItem(CategoryViews.title(category), CategoryViews.viewClass(category),
                     CategoryViews.icon(category).create()));
         }

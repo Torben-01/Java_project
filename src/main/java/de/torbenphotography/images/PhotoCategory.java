@@ -1,6 +1,7 @@
 package de.torbenphotography.images;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 /*
@@ -8,16 +9,27 @@ import java.util.Optional;
  * cover          image for the category card on the start page
  * cover-vertikal portrait format image on the category page
  * beispiele      example pictures shown as gallery on the category page
+ * SONSTIGES has no page of its own, it can only be chosen in the request form.
  */
 public enum PhotoCategory {
-    PORTRAIT("portrait"),
-    AUTO("auto"),
-    HOCHZEIT("hochzeit");
+    PORTRAIT("portrait", true),
+    AUTO("auto", true),
+    HOCHZEIT("hochzeit", true),
+    SONSTIGES("sonstiges", false);
 
     private final String folder;
+    private final boolean showcase;
 
-    PhotoCategory(String folder) {
+    PhotoCategory(String folder, boolean showcase) {
         this.folder = folder;
+        this.showcase = showcase;
+    }
+
+    /*
+     * Categories with their own page, card on the start page and navigation entry
+     */
+    public static List<PhotoCategory> showcases() {
+        return Arrays.stream(values()).filter(category -> category.showcase).toList();
     }
 
     /*

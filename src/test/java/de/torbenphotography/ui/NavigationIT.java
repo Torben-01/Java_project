@@ -19,6 +19,8 @@ class NavigationIT extends AbstractUiIT {
         CardElement.getByTitle(page, "Portrait").assertVisible();
         CardElement.getByTitle(page, "Auto").assertVisible();
         CardElement.getByTitle(page, "Hochzeit").assertVisible();
+        // "Sonstiges" exists only in the request form
+        assertThat(page.getByText("Sonstiges")).hasCount(0);
     }
 
     @Test

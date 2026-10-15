@@ -56,7 +56,7 @@ public class HomeView extends Div {
     private Component createCategories() {
         Div grid = new Div();
         grid.addClassName("card-grid");
-        for (PhotoCategory category : PhotoCategory.values()) {
+        for (PhotoCategory category : PhotoCategory.showcases()) {
             grid.add(createCategoryCard(category));
         }
 

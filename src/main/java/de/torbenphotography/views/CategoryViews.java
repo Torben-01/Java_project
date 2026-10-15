@@ -17,6 +17,7 @@ final class CategoryViews {
             case PORTRAIT -> PortraitView.class;
             case AUTO -> CarPhotographyView.class;
             case HOCHZEIT -> WeddingPhotographyView.class;
+            case SONSTIGES -> throw new IllegalArgumentException("Für " + category + " gibt es keine eigene Seite");
         };
     }
 
@@ -25,6 +26,7 @@ final class CategoryViews {
             case PORTRAIT -> VaadinIcon.USER;
             case AUTO -> VaadinIcon.CAR;
             case HOCHZEIT -> VaadinIcon.HEART;
+            case SONSTIGES -> VaadinIcon.ELLIPSIS_DOTS_H;
         };
     }
 
