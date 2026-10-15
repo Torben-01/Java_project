@@ -118,6 +118,10 @@ public class RequestFormView extends Div implements HasUrlParameter<String>, Has
 
         EmailField email = new EmailField(getTranslation("request.email"));
         email.setMaxLength(Request.EMAIL_MAX_LENGTH);
+        // the browser checks the format itself and needs its own message for it
+        email.setI18n(new EmailField.EmailFieldI18n()
+                .setPatternErrorMessage(getTranslation("request.email.invalid"))
+                .setRequiredErrorMessage(getTranslation("request.email.required")));
         binder.forField(email)
                 .asRequired(getTranslation("request.email.required"))
                 .withValidator(new EmailValidator(getTranslation("request.email.invalid")))

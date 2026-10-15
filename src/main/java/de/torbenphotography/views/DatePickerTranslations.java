@@ -26,7 +26,10 @@ final class DatePickerTranslations {
                 .setFirstDayOfWeek(german ? 1 : 0)
                 .setDateFormat(german ? "dd.MM.yyyy" : "MM/dd/yyyy")
                 .setToday(I18NProvider.translate(locale, "datepicker.today"))
-                .setCancel(I18NProvider.translate(locale, "datepicker.cancel"));
+                .setCancel(I18NProvider.translate(locale, "datepicker.cancel"))
+                .setBadInputErrorMessage(I18NProvider.translate(locale, "request.date.invalid"))
+                .setMinErrorMessage(I18NProvider.translate(locale, "request.date.past"))
+                .setRequiredErrorMessage(I18NProvider.translate(locale, "request.date.required"));
     }
 
     private static List<String> withoutEmptyFirst(String[] names) {
