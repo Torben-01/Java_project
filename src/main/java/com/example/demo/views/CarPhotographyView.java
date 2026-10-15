@@ -1,8 +1,7 @@
 package com.example.demo.views;
 
-import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.Paragraph;
+import com.example.demo.images.ImageService;
+import com.example.demo.images.PhotoCategory;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
 
@@ -10,17 +9,8 @@ import jakarta.annotation.security.PermitAll;
 @PermitAll
 public class CarPhotographyView extends CommonComponents {
 
-    public CarPhotographyView() {
-        FormLayout formLayout = new FormLayout();
-
-        setAlignItems(Alignment.CENTER);
-        setJustifyContentMode(JustifyContentMode.CENTER);
-
-        H1 title = new H1("Autofotografie");
-        Paragraph underTitle = new Paragraph("Perfekte Inszenierung deines Autos – egal ob Sportwagen oder Oldtimer.");
-
-        add(title, formLayout);
-        add(underTitle, formLayout);
-        super.createCommonLayout(formLayout);
+    public CarPhotographyView(ImageService imageService) {
+        super(imageService, PhotoCategory.AUTO, "Autofotografie",
+                "Perfekte Inszenierung deines Autos – egal ob Sportwagen oder Oldtimer.");
     }
 }

@@ -1,5 +1,7 @@
 package com.example.demo.views;
 
+import com.example.demo.images.ImageService;
+import com.example.demo.images.PhotoCategory;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -13,7 +15,10 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 @Route("")
 public class PhotographerView extends VerticalLayout {
 
-    public PhotographerView() {
+    private final ImageService imageService;
+
+    public PhotographerView(ImageService imageService) {
+        this.imageService = imageService;
         setSizeFull();
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
@@ -33,9 +38,9 @@ public class PhotographerView extends VerticalLayout {
         categoryLayout.addClassName("category-layout");
 
         categoryLayout.add(
-            createCategoryCard("portrait.jpg", "Porträtfotografie", "portrait"),
-            createCategoryCard("car.jpg", "Autofotografie", "car-photography"),
-            createCategoryCard("wedding.jpg", "Hochzeitsfotografie", "wedding-photography")
+            createCategoryCard(PhotoCategory.PORTRAIT, "Porträtfotografie", "portrait"),
+            createCategoryCard(PhotoCategory.AUTO, "Autofotografie", "car-photography"),
+            createCategoryCard(PhotoCategory.HOCHZEIT, "Hochzeitsfotografie", "wedding-photography")
         );
 
         backgroundDiv.add(title, description);
@@ -43,34 +48,40 @@ public class PhotographerView extends VerticalLayout {
     }
     /*
      * Creates a category card with an image, a title and a button
-     * imagePath String name of the image file
+     * category PhotoCategory whose cover image is shown, the image is left out if there is none
      * title String title of the category
      * route String route to navigate to when the button is clicked 
      */
-    private VerticalLayout createCategoryCard(String imagePath, String title, String route) {
-        Image image = new Image(imagePath, title);
-        image.setWidth("300px");
-        image.setHeight("200px");
-        image.getStyle().set("border-radius", "15px");
-        image.addClassName("category-image");
+    private VerticalLayout createCategoryCard(PhotoCategory category, String title, String route) {
+        VerticalLayout card = new VerticalLayout();
+        card.setAlignItems(Alignment.CENTER);
+        card.addClassName("category-card");
+
+        imageService.findFirst(category.cover()).ifPresent(url -> {
+            Image image = new Image(url, title);
+            image.setWidth("300px");
+            image.setHeight("200px");
+            image.getStyle().set("object-fit", "cover");
+            image.getStyle().set("border-radius", "15px");
+            image.addClassName("category-image");
+            card.add(image);
+        });
 
         Button button = new Button(title, event -> 
             event.getSource().getUI().ifPresent(ui -> ui.navigate(route))
         );
         button.addClassName("category-button");
 
-        VerticalLayout card = new VerticalLayout(image, button);
-        card.setAlignItems(Alignment.CENTER);
-        card.addClassName("category-card");
-
+        card.add(button);
         return card;
     }
     /*
-     * Sets the style of the background div
+     * Sets the style of the background div, the background image is taken from images/startseite/hintergrund
      */
     private Div setStyle() {
         Div backgroundDiv = new Div();
-        backgroundDiv.getStyle().set("background-image", "url('background.jpg')");
+        imageService.findFirst(ImageService.START_PAGE_BACKGROUND)
+                .ifPresent(url -> backgroundDiv.getStyle().set("background-image", "url('" + url + "')"));
         backgroundDiv.getStyle().set("background-size", "cover");
         backgroundDiv.getStyle().set("background-position", "center");
         backgroundDiv.getStyle().set("width", "100%");

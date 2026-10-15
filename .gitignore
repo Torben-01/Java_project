@@ -4,7 +4,14 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-**/resources/static/*
+
+### Vaadin ###
+src/main/frontend/generated/
+vite.generated.ts
+
+### Bilder (nur lokal, Ordnerstruktur bleibt über .gitkeep erhalten) ###
+src/main/resources/META-INF/resources/images/**/*.*
+!src/main/resources/META-INF/resources/images/**/.gitkeep
 
 ### STS ###
 .apt_generated
