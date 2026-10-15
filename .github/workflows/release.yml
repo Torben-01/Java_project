@@ -1,0 +1,76 @@
+name: Release
+
+# Ein Tag wie v1.0.0 erzeugt ein GitHub-Release mit der JAR-Datei und
+# veröffentlicht das Docker-Image in der GitHub Container Registry.
+on:
+  push:
+    tags: [ 'v*' ]
+
+permissions:
+  contents: write   # Release anlegen
+  packages: write   # Image nach ghcr.io hochladen
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Java 21 einrichten
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Tag und Version in der pom.xml stimmen überein
+        run: |
+          version=$(./mvnw -q help:evaluate -Dexpression=project.version -DforceStdout)
+          echo "pom.xml: $version, Tag: $GITHUB_REF_NAME"
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Der Tag $GITHUB_REF_NAME passt nicht zur Version $version in der pom.xml"
+            exit 1
+          fi
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Playwright-Abhängigkeiten installieren
+        run: npx --yes playwright@1.59.0 install-deps chromium
+
+      - name: Unit- und Browsertests, JAR bauen
+        run: ./mvnw -B verify
+
+      - name: Image-Namen bestimmen
+        # ghcr.io verlangt Kleinbuchstaben
+        run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/torben-photography" >> "$GITHUB_ENV"
+
+      - name: Bei der GitHub Container Registry anmelden
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker-Image bauen und hochladen
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:${{ env.VERSION }}
+            ${{ env.IMAGE }}:latest
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.version=${{ env.VERSION }}
+            org.opencontainers.image.title=Torben Photography
+
+      - name: GitHub-Release mit JAR anlegen
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cp target/torben-photography-$VERSION.jar torben-photography-$VERSION.jar
+          gh release create "$GITHUB_REF_NAME" "torben-photography-$VERSION.jar" \
+            --title "Torben Photography $VERSION" \
+            --generate-notes \
+            --notes "Docker-Image: \`$IMAGE:$VERSION\` (privat, Anmeldung siehe README)"

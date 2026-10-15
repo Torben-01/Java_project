@@ -22,7 +22,8 @@ services:
 
   app:
     build: .
-    image: torben-photography:latest
+    # leer = auf dem Server aus dem Quellcode bauen, sonst fertiges Image aus der Registry
+    image: ${APP_IMAGE:-torben-photography:latest}
     restart: unless-stopped
     depends_on:
       db:

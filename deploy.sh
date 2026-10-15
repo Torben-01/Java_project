@@ -48,8 +48,16 @@ for category in portrait auto hochzeit; do
 done
 mkdir -p bilder/startseite/hintergrund
 
-echo "Baue und starte die Website für $domain ..."
-if ! docker compose up -d --build; then
+image="$(get_value APP_IMAGE || true)"
+if [ -n "$image" ]; then
+    echo "Lade $image und starte die Website für $domain ..."
+    docker compose pull app || fail "Image $image konnte nicht geladen werden. Angemeldet? docker login ghcr.io"
+    up_options=(--no-build)
+else
+    echo "Baue und starte die Website für $domain ..."
+    up_options=(--build)
+fi
+if ! docker compose up -d "${up_options[@]}"; then
     docker compose ps
     docker compose logs --tail 80 app
     fail "Start fehlgeschlagen, siehe Log oben."

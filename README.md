@@ -127,6 +127,25 @@ Die Container starten nach einem Neustart des Servers automatisch wieder.
 Weitere Einstellungen wie der Mailserver stehen in `.env`. Nach einer Änderung einfach `./deploy.sh` erneut
 ausführen.
 
+### Fertiges Release-Image statt Bauen auf dem Server
+
+Jedes Release liegt als privates Docker-Image in der GitHub Container Registry. Dann muss der Server nicht selbst
+bauen, und es läuft genau die freigegebene Version:
+
+1. Auf GitHub (als `Torben-01`) unter *Settings → Developer settings → Personal access tokens → Tokens (classic)*
+   einen Token nur mit dem Recht `read:packages` anlegen.
+2. Auf dem Server einmalig anmelden, als Passwort den Token eingeben:
+
+       docker login ghcr.io -u Torben-01
+
+3. In `.env` die gewünschte Version eintragen und starten:
+
+       APP_IMAGE=ghcr.io/torben-01/torben-photography:1.0.0
+
+       ./deploy.sh
+
+Für ein Update auf ein neues Release nur die Versionsnummer in `APP_IMAGE` ändern und `./deploy.sh` ausführen.
+
 ### Bilder hochladen
 
 Die Bilder kommen auf dem Server in den Ordner `bilder/` im Projekt (Aufbau siehe Abschnitt *Bilder*), z. B. per
@@ -152,6 +171,18 @@ Eine Sicherung zurückspielen:
 
 Die Sicherungen liegen auf demselben Server. Sie sollten zusätzlich regelmäßig an einen anderen Ort kopiert
 werden.
+
+## Ein neues Release veröffentlichen
+
+1. Die Version in der `pom.xml` setzen (z. B. `1.1.0`) und auf `main` committen und pushen.
+2. Einen passenden Tag pushen:
+
+       git tag v1.1.0
+       git push origin v1.1.0
+
+Der Workflow `.github/workflows/release.yml` prüft, dass Tag und Version übereinstimmen, führt alle Tests aus,
+lädt das Docker-Image als `ghcr.io/torben-01/torben-photography:<version>` und `:latest` hoch und legt ein
+GitHub-Release mit der JAR-Datei und Release Notes aus den Commits an.
 
 ## Vor der Veröffentlichung
 
