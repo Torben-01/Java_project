@@ -5,7 +5,7 @@ import de.torbenphotography.images.PhotoCategory;
 import de.torbenphotography.services.RequestService;
 import com.vaadin.flow.router.Route;
 
-@Route("portrait")
+@Route(value = "portrait", layout = MainLayout.class)
 public class PortraitView extends CommonComponents {
 
     public PortraitView(ImageService imageService, RequestService requestService) {

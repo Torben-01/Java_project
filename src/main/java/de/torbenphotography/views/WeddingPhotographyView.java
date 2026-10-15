@@ -5,7 +5,7 @@ import de.torbenphotography.images.PhotoCategory;
 import de.torbenphotography.services.RequestService;
 import com.vaadin.flow.router.Route;
 
-@Route("wedding-photography")
+@Route(value = "wedding-photography", layout = MainLayout.class)
 public class WeddingPhotographyView extends CommonComponents {
 
     public WeddingPhotographyView(ImageService imageService, RequestService requestService) {

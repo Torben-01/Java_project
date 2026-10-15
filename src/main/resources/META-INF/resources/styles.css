@@ -1,0 +1,211 @@
+/* ---------- Theme ---------- */
+html {
+  --aura-accent-color-light: oklch(0.55 0.12 60);
+  --aura-accent-color-dark: oklch(0.75 0.12 70);
+  --aura-base-radius: 6;
+  --aura-app-layout-inset: 0px;
+  --page-max-width: 1200px;
+  --page-gutter: clamp(16px, 4vw, 40px);
+}
+
+/* ---------- Navigation ---------- */
+.navbar {
+  display: flex;
+  align-items: center;
+  gap: var(--vaadin-gap-m, 12px);
+  width: 100%;
+  padding-inline: var(--page-gutter);
+  box-sizing: border-box;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: var(--aura-font-weight-semibold, 600);
+  font-size: var(--aura-font-size-l, 16px);
+  color: var(--vaadin-text-color);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.brand vaadin-icon {
+  color: var(--aura-accent-text-color);
+}
+
+.main-nav {
+  display: flex;
+  gap: 4px;
+  margin-inline: auto;
+}
+
+.main-nav a {
+  padding: 6px 12px;
+  border-radius: var(--vaadin-radius-m, 6px);
+  color: var(--vaadin-text-color-secondary);
+  text-decoration: none;
+  font-weight: var(--aura-font-weight-medium, 500);
+}
+
+.main-nav a:hover {
+  color: var(--vaadin-text-color);
+  background: var(--vaadin-background-container);
+}
+
+.main-nav a[highlight] {
+  color: var(--aura-accent-text-color);
+  background: var(--vaadin-background-container);
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.drawer-nav {
+  padding: var(--vaadin-padding-m, 12px);
+}
+
+@media (max-width: 900px) {
+  .desktop-only {
+    display: none !important;
+  }
+
+  .navbar-actions {
+    margin-inline-start: auto;
+  }
+}
+
+@media (min-width: 901px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
+
+/* ---------- Page structure ---------- */
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.page-content {
+  flex: 1;
+}
+
+.section {
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding: clamp(32px, 6vw, 64px) var(--page-gutter);
+  box-sizing: border-box;
+}
+
+.section-title {
+  margin: 0 0 8px;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+.section-lead {
+  margin: 0 0 32px;
+  color: var(--vaadin-text-color-secondary);
+  max-width: 60ch;
+}
+
+.footer {
+  border-top: 1px solid var(--vaadin-border-color-secondary);
+  color: var(--vaadin-text-color-secondary);
+  font-size: var(--aura-font-size-s, 13px);
+}
+
+.footer .section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  padding-block: 24px;
+}
+
+.footer a {
+  color: inherit;
+}
+
+.footer-links {
+  display: flex;
+  gap: 16px;
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: clamp(360px, 60vh, 560px);
+  background: linear-gradient(135deg, oklch(0.45 0.08 40), oklch(0.25 0.05 280));
+  background-size: cover;
+  background-position: center;
+  color: white;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgb(0 0 0 / 0.7), rgb(0 0 0 / 0.15) 60%, transparent);
+}
+
+.hero-content {
+  position: relative;
+  width: 100%;
+}
+
+.hero h1 {
+  margin: 0 0 12px;
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  line-height: 1.1;
+  color: white;
+  text-shadow: 0 2px 12px rgb(0 0 0 / 0.4);
+}
+
+.hero p {
+  margin: 0 0 24px;
+  max-width: 55ch;
+  font-size: clamp(1rem, 2vw, 1.15rem);
+  color: rgb(255 255 255 / 0.9);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* ---------- Cards & grids ---------- */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+.card-grid vaadin-card img {
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+}
+
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--aura-accent-color);
+  color: var(--aura-accent-contrast-color);
+  font-weight: var(--aura-font-weight-semibold, 600);
+}

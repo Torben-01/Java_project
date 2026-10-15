@@ -6,7 +6,7 @@ import de.torbenphotography.services.RequestService;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
 
-@Route("car-photography")
+@Route(value = "car-photography", layout = MainLayout.class)
 @PermitAll
 public class CarPhotographyView extends CommonComponents {
 
