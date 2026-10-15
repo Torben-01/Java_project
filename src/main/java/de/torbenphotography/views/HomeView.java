@@ -29,14 +29,13 @@ public class HomeView extends Div {
     }
 
     private Component createHero() {
-        H1 title = new H1("Willkommen bei Torben Photography");
-        Paragraph lead = new Paragraph(
-                "Professionelle Fotografie für jeden Anlass – von Porträts über Autos bis hin zu Hochzeiten.");
+        H1 title = new H1(getTranslation("home.title"));
+        Paragraph lead = new Paragraph(getTranslation("home.lead"));
 
-        Button request = new Button("Anfrage stellen",
+        Button request = new Button(getTranslation("nav.request"),
                 event -> getUI().ifPresent(ui -> ui.navigate(RequestFormView.class)));
         request.addThemeVariants(ButtonVariant.PRIMARY);
-        Button explore = new Button("Leistungen ansehen",
+        Button explore = new Button(getTranslation("home.explore"),
                 event -> getElement().executeJs("document.getElementById('leistungen').scrollIntoView({behavior: 'smooth'})"));
 
         Div actions = new Div(request, explore);
@@ -59,9 +58,9 @@ public class HomeView extends Div {
             grid.add(createCategoryCard(category));
         }
 
-        H2 title = new H2("Leistungen");
+        H2 title = new H2(getTranslation("home.services.title"));
         title.addClassName("section-title");
-        Paragraph lead = new Paragraph("Wähle eine Kategorie und lass dich von Beispielen inspirieren.");
+        Paragraph lead = new Paragraph(getTranslation("home.services.lead"));
         lead.addClassName("section-lead");
 
         Section section = new Section(title, lead, grid);
@@ -79,7 +78,7 @@ public class HomeView extends Div {
         card.setTitle(title);
         card.add(new Paragraph(CategoryViews.description(category)));
 
-        Button more = new Button("Mehr erfahren",
+        Button more = new Button(getTranslation("home.more"),
                 event -> getUI().ifPresent(ui -> ui.navigate(CategoryViews.viewClass(category))));
         card.addToFooter(more);
         return card;
@@ -87,14 +86,12 @@ public class HomeView extends Div {
 
     private Component createSteps() {
         Div steps = new Div(
-                createStep(1, "Anfrage stellen", "Wähle eine Kategorie und schick mir deinen Wunschtermin."),
-                createStep(2, "Abstimmen", "Wir besprechen Ort, Stil und Ablauf des Shootings."),
-                createStep(3, "Shooting", "Wir setzen deine Ideen um – die Bilder bekommst du bearbeitet."));
+                createStep(1), createStep(2), createStep(3));
         steps.addClassName("steps");
 
-        H2 title = new H2("So läuft's ab");
+        H2 title = new H2(getTranslation("home.steps.title"));
         title.addClassName("section-title");
-        Paragraph lead = new Paragraph("In drei Schritten zu deinen Bildern.");
+        Paragraph lead = new Paragraph(getTranslation("home.steps.lead"));
         lead.addClassName("section-lead");
 
         Section section = new Section(title, lead, steps);
@@ -102,15 +99,15 @@ public class HomeView extends Div {
         return section;
     }
 
-    private Card createStep(int number, String title, String text) {
+    private Card createStep(int number) {
         Span badge = new Span(String.valueOf(number));
         badge.addClassName("step-number");
 
         Card card = new Card();
         card.addThemeVariants(CardVariant.OUTLINED);
         card.setHeaderPrefix(badge);
-        card.setTitle(title);
-        card.add(new Paragraph(text));
+        card.setTitle(getTranslation("home.step" + number + ".title"));
+        card.add(new Paragraph(getTranslation("home.step" + number + ".text")));
         return card;
     }
 }

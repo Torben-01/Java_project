@@ -15,12 +15,13 @@ import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Section;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.router.HasDynamicTitle;
 
 /*
  * Page of one photo category: introduction with vertical cover, button to the request form
  * and a gallery of the example pictures
  */
-public abstract class CategoryView extends Div {
+public abstract class CategoryView extends Div implements HasDynamicTitle {
 
     private final PhotoCategory category;
 
@@ -35,12 +36,17 @@ public abstract class CategoryView extends Div {
         }
     }
 
+    @Override
+    public String getPageTitle() {
+        return CategoryViews.headline(category) + " | Torben Photography";
+    }
+
     private Component createIntro(ImageService imageService) {
         H1 title = new H1(CategoryViews.headline(category));
         Paragraph lead = new Paragraph(CategoryViews.description(category));
         lead.addClassName("section-lead");
 
-        Button request = new Button("Jetzt anfragen", VaadinIcon.ENVELOPE.create(),
+        Button request = new Button(getTranslation("category.request"), VaadinIcon.ENVELOPE.create(),
                 event -> getUI().ifPresent(ui -> ui.navigate(RequestFormView.class, category.key())));
         request.addThemeVariants(ButtonVariant.PRIMARY);
 
@@ -66,7 +72,7 @@ public abstract class CategoryView extends Div {
             gallery.add(image);
         }
 
-        H2 title = new H2("Beispiele");
+        H2 title = new H2(getTranslation("category.examples"));
         title.addClassName("section-title");
         Section section = new Section(title, gallery);
         section.addClassName("section");

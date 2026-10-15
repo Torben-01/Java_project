@@ -1,6 +1,7 @@
 package de.torbenphotography.views;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import de.torbenphotography.entities.Request;
 import de.torbenphotography.images.PhotoCategory;
@@ -29,7 +30,7 @@ import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.OptionalParameter;
-import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +40,11 @@ import org.springframework.dao.DataAccessException;
  * Request form for a photo shoot, reachable as /anfrage or preselected as /anfrage/<category key>
  */
 @Route(value = "anfrage", layout = MainLayout.class)
-@PageTitle("Anfrage | Torben Photography")
-public class RequestFormView extends Div implements HasUrlParameter<String> {
+public class RequestFormView extends Div implements HasUrlParameter<String>, HasDynamicTitle {
 
     private static final Logger LOG = LoggerFactory.getLogger(RequestFormView.class);
+    // stored as is in the database, shown translated
+    private static final List<String> SALUTATIONS = List.of("Herr", "Frau", "Divers");
 
     private final RequestService requestService;
     private final Binder<Request> binder = new Binder<>(Request.class);
@@ -54,9 +56,9 @@ public class RequestFormView extends Div implements HasUrlParameter<String> {
         this.requestService = requestService;
         addClassNames("section", "request-view");
 
-        H1 title = new H1("Anfrage stellen");
+        H1 title = new H1(getTranslation("request.title"));
         title.addClassName("section-title");
-        Paragraph lead = new Paragraph("Erzähl mir von deinem Wunsch-Shooting – ich melde mich so schnell wie möglich bei dir.");
+        Paragraph lead = new Paragraph(getTranslation("request.lead"));
         lead.addClassName("section-lead");
 
         formCard = createForm();
@@ -65,52 +67,60 @@ public class RequestFormView extends Div implements HasUrlParameter<String> {
     }
 
     @Override
+    public String getPageTitle() {
+        return getTranslation("request.pagetitle") + " | Torben Photography";
+    }
+
+    @Override
     public void setParameter(BeforeEvent event, @OptionalParameter String categoryKey) {
         PhotoCategory.fromKey(categoryKey).ifPresent(category::setValue);
     }
 
     private Component createForm() {
-        category.setLabel("Kategorie");
+        category.setLabel(getTranslation("request.category"));
         category.setItems(PhotoCategory.values());
         category.setItemLabelGenerator(CategoryViews::title);
         binder.forField(category)
-                .asRequired("Bitte eine Kategorie auswählen")
+                .asRequired(getTranslation("request.category.required"))
                 .bind(Request::getCategory, Request::setCategory);
 
-        ComboBox<String> salutation = new ComboBox<>("Anrede");
-        salutation.setItems("Herr", "Frau", "Divers");
+        ComboBox<String> salutation = new ComboBox<>(getTranslation("request.salutation"));
+        salutation.setItems(SALUTATIONS);
+        salutation.setItemLabelGenerator(value -> getTranslation("salutation." + value));
         binder.forField(salutation)
-                .asRequired("Bitte eine Anrede auswählen")
+                .asRequired(getTranslation("request.salutation.required"))
                 .bind(Request::getSalutation, Request::setSalutation);
 
-        TextField firstName = new TextField("Vorname");
+        TextField firstName = new TextField(getTranslation("request.firstName"));
         firstName.setMaxLength(Request.NAME_MAX_LENGTH);
         binder.forField(firstName)
-                .asRequired("Bitte den Vornamen eingeben")
+                .asRequired(getTranslation("request.firstName.required"))
                 .bind(Request::getFirstName, Request::setFirstName);
 
-        TextField lastName = new TextField("Nachname");
+        TextField lastName = new TextField(getTranslation("request.lastName"));
         lastName.setMaxLength(Request.NAME_MAX_LENGTH);
         binder.forField(lastName)
-                .asRequired("Bitte den Nachnamen eingeben")
+                .asRequired(getTranslation("request.lastName.required"))
                 .bind(Request::getLastName, Request::setLastName);
 
-        EmailField email = new EmailField("E-Mail");
+        EmailField email = new EmailField(getTranslation("request.email"));
         email.setMaxLength(Request.EMAIL_MAX_LENGTH);
         binder.forField(email)
-                .asRequired("Bitte eine E-Mail-Adresse eingeben")
-                .withValidator(new EmailValidator("Bitte eine gültige E-Mail eingeben"))
+                .asRequired(getTranslation("request.email.required"))
+                .withValidator(new EmailValidator(getTranslation("request.email.invalid")))
                 .bind(Request::getEmail, Request::setEmail);
 
-        DatePicker date = new DatePicker("Wunschtermin");
+        DatePicker date = new DatePicker(getTranslation("request.date"));
         date.setMin(LocalDate.now());
+        date.setLocale(getLocale());
+        date.setI18n(DatePickerTranslations.forLocale(getLocale()));
         binder.forField(date)
-                .asRequired("Bitte einen Wunschtermin auswählen")
-                .withValidator(value -> !value.isBefore(LocalDate.now()), "Der Wunschtermin darf nicht in der Vergangenheit liegen")
+                .asRequired(getTranslation("request.date.required"))
+                .withValidator(value -> !value.isBefore(LocalDate.now()), getTranslation("request.date.past"))
                 .bind(Request::getDate, Request::setDate);
 
-        TextArea comment = new TextArea("Kommentar");
-        comment.setPlaceholder("Gibt es besondere Wünsche?");
+        TextArea comment = new TextArea(getTranslation("request.comment"));
+        comment.setPlaceholder(getTranslation("request.comment.placeholder"));
         comment.setMaxLength(Request.COMMENT_MAX_LENGTH);
         binder.forField(comment).bind(Request::getComment, Request::setComment);
 
@@ -119,7 +129,7 @@ public class RequestFormView extends Div implements HasUrlParameter<String> {
         form.setColspan(category, 2);
         form.setColspan(comment, 2);
 
-        Button send = new Button("Anfrage senden", event -> submit());
+        Button send = new Button(getTranslation("request.send"), event -> submit());
         send.addThemeVariants(ButtonVariant.PRIMARY);
 
         Card card = new Card();
@@ -132,7 +142,7 @@ public class RequestFormView extends Div implements HasUrlParameter<String> {
     private void submit() {
         Request request = new Request();
         if (!binder.writeBeanIfValid(request)) {
-            showNotification("Bitte alle Pflichtfelder korrekt ausfüllen!", NotificationVariant.ERROR);
+            showNotification(getTranslation("request.error.invalid"), NotificationVariant.ERROR);
             return;
         }
         try {
@@ -142,8 +152,7 @@ public class RequestFormView extends Div implements HasUrlParameter<String> {
             showConfirmation(true);
         } catch (DataAccessException e) {
             LOG.error("Anfrage konnte nicht gespeichert werden", e);
-            showNotification("Die Anfrage konnte gerade nicht gespeichert werden. Bitte später erneut versuchen.",
-                    NotificationVariant.ERROR);
+            showNotification(getTranslation("request.error.save"), NotificationVariant.ERROR);
         }
     }
 
@@ -151,10 +160,10 @@ public class RequestFormView extends Div implements HasUrlParameter<String> {
         Card card = new Card();
         card.addThemeVariants(CardVariant.OUTLINED);
         card.setHeaderPrefix(VaadinIcon.CHECK_CIRCLE.create());
-        card.setTitle("Vielen Dank, " + request.getFirstName() + "!");
-        card.add(new Paragraph("Deine Anfrage ist angekommen. Ich melde mich in den nächsten Tagen per E-Mail bei dir."));
+        card.setTitle(getTranslation("request.thanks", request.getFirstName()));
+        card.add(new Paragraph(getTranslation("request.thanks.text")));
 
-        Button again = new Button("Weitere Anfrage stellen", event -> {
+        Button again = new Button(getTranslation("request.again"), event -> {
             PhotoCategory lastCategory = category.getValue();
             binder.readBean(null);
             category.setValue(lastCategory);

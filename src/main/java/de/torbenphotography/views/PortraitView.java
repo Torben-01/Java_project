@@ -2,11 +2,9 @@ package de.torbenphotography.views;
 
 import de.torbenphotography.images.ImageService;
 import de.torbenphotography.images.PhotoCategory;
-import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 @Route(value = "portrait", layout = MainLayout.class)
-@PageTitle("Portraitfotografie | Torben Photography")
 public class PortraitView extends CategoryView {
 
     public PortraitView(ImageService imageService) {

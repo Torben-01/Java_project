@@ -3,9 +3,10 @@ package de.torbenphotography.views;
 import de.torbenphotography.images.PhotoCategory;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.i18n.I18NProvider;
 
 /*
- * UI information per photo category: the view showing it, its icon and texts
+ * UI information per photo category: the view showing it, its icon and translated texts
  */
 final class CategoryViews {
 
@@ -28,26 +29,18 @@ final class CategoryViews {
     }
 
     static String title(PhotoCategory category) {
-        return switch (category) {
-            case PORTRAIT -> "Portrait";
-            case AUTO -> "Auto";
-            case HOCHZEIT -> "Hochzeit";
-        };
+        return text(category, "title");
     }
 
     static String headline(PhotoCategory category) {
-        return switch (category) {
-            case PORTRAIT -> "Portraitfotografie";
-            case AUTO -> "Autofotografie";
-            case HOCHZEIT -> "Hochzeitsfotografie";
-        };
+        return text(category, "headline");
     }
 
     static String description(PhotoCategory category) {
-        return switch (category) {
-            case PORTRAIT -> "Dein Gesicht im Fokus – professionelle Portraitaufnahmen für jeden Anlass.";
-            case AUTO -> "Perfekte Inszenierung deines Autos – egal ob Sportwagen oder Oldtimer.";
-            case HOCHZEIT -> "Unvergessliche Momente eures großen Tages für die Ewigkeit festhalten.";
-        };
+        return text(category, "description");
+    }
+
+    private static String text(PhotoCategory category, String suffix) {
+        return I18NProvider.translate("category." + category.key() + "." + suffix);
     }
 }

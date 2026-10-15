@@ -1,5 +1,8 @@
 package de.torbenphotography.views;
 
+import java.util.Locale;
+
+import de.torbenphotography.i18n.TranslationProvider;
 import de.torbenphotography.images.PhotoCategory;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
@@ -13,6 +16,7 @@ import com.vaadin.flow.component.html.Main;
 import com.vaadin.flow.component.html.Nav;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.AfterNavigationEvent;
@@ -38,10 +42,11 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
         Div navbar = new Div(toggle, createBrand(), createNavigation(), navbarActions);
         navbar.addClassName("navbar");
         navbarActions.addClassName("navbar-actions");
-        Button request = new Button("Anfrage stellen",
+        Button request = new Button(getTranslation("nav.request"),
                 event -> getUI().ifPresent(ui -> ui.navigate(RequestFormView.class)));
         request.addThemeVariants(ButtonVariant.PRIMARY);
-        navbarActions.add(request);
+        request.addClassName("desktop-only");
+        navbarActions.add(createLanguageSelect(), request);
         addToNavbar(navbar);
 
         addToDrawer(createDrawerNavigation());
@@ -88,7 +93,7 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
         Nav nav = new Nav();
         nav.addClassNames("main-nav", "desktop-only");
 
-        RouterLink home = new RouterLink("Start", HomeView.class);
+        RouterLink home = new RouterLink(getTranslation("nav.home"), HomeView.class);
         home.setHighlightCondition(HighlightConditions.sameLocation());
         nav.add(home);
         for (PhotoCategory category : PhotoCategory.values()) {
@@ -100,12 +105,29 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
     private Component createDrawerNavigation() {
         SideNav nav = new SideNav();
         nav.addClassName("drawer-nav");
-        nav.addItem(new SideNavItem("Start", HomeView.class, VaadinIcon.HOME.create()));
+        nav.addItem(new SideNavItem(getTranslation("nav.home"), HomeView.class, VaadinIcon.HOME.create()));
+        nav.addItem(new SideNavItem(getTranslation("nav.request"), RequestFormView.class, VaadinIcon.ENVELOPE.create()));
         for (PhotoCategory category : PhotoCategory.values()) {
             nav.addItem(new SideNavItem(CategoryViews.title(category), CategoryViews.viewClass(category),
                     CategoryViews.icon(category).create()));
         }
         return nav;
+    }
+
+    private Component createLanguageSelect() {
+        Select<Locale> language = new Select<>();
+        language.setItems(TranslationProvider.LOCALES);
+        language.setItemLabelGenerator(locale -> locale.getLanguage().toUpperCase(Locale.ROOT));
+        language.setValue(TranslationProvider.LOCALES.contains(getLocale()) ? getLocale() : TranslationProvider.LOCALES.get(0));
+        language.setAriaLabel(getTranslation("nav.language"));
+        language.setTooltipText(getTranslation("nav.language"));
+        language.addClassName("language-select");
+        language.addValueChangeListener(event -> {
+            if (event.isFromClient()) {
+                UserPreferences.changeLocale(event.getValue());
+            }
+        });
+        return language;
     }
 
     private Component createFooter() {

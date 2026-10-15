@@ -1,0 +1,75 @@
+package de.torbenphotography.views;
+
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.Optional;
+
+import de.torbenphotography.i18n.TranslationProvider;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.server.VaadinRequest;
+import com.vaadin.flow.server.VaadinResponse;
+import com.vaadin.flow.server.VaadinService;
+import jakarta.servlet.http.Cookie;
+
+/*
+ * Settings the visitor chooses in the navigation bar. They are kept in cookies,
+ * so they survive the end of the session and are applied again on the next visit.
+ */
+public final class UserPreferences {
+
+    private static final String LANGUAGE_COOKIE = "language";
+    private static final int ONE_YEAR_IN_SECONDS = 60 * 60 * 24 * 365;
+
+    private UserPreferences() {}
+
+    /*
+     * Applies the stored settings to a newly created UI
+     */
+    static void restore(UI ui, VaadinRequest request) {
+        readCookie(request, LANGUAGE_COOKIE)
+                .flatMap(UserPreferences::supportedLocale)
+                .ifPresent(locale -> {
+                    ui.getSession().setLocale(locale);
+                    ui.setLocale(locale);
+                });
+    }
+
+    /*
+     * Switches the language for the whole session and reloads the page, so every text is rebuilt
+     */
+    public static void changeLocale(Locale locale) {
+        UI ui = UI.getCurrentOrThrow();
+        ui.getSession().setLocale(locale);
+        writeCookie(LANGUAGE_COOKIE, locale.getLanguage());
+        ui.getPage().reload();
+    }
+
+    private static Optional<Locale> supportedLocale(String language) {
+        return TranslationProvider.LOCALES.stream()
+                .filter(locale -> locale.getLanguage().equals(language))
+                .findFirst();
+    }
+
+    private static Optional<String> readCookie(VaadinRequest request, String name) {
+        if (request == null || request.getCookies() == null) {
+            return Optional.empty();
+        }
+        return Arrays.stream(request.getCookies())
+                .filter(cookie -> cookie.getName().equals(name))
+                .map(Cookie::getValue)
+                .findFirst();
+    }
+
+    private static void writeCookie(String name, String value) {
+        VaadinRequest request = VaadinService.getCurrentRequest();
+        VaadinResponse response = VaadinService.getCurrentResponse();
+        if (request == null || response == null) {
+            return;
+        }
+        Cookie cookie = new Cookie(name, value);
+        cookie.setPath(request.getContextPath().isEmpty() ? "/" : request.getContextPath());
+        cookie.setMaxAge(ONE_YEAR_IN_SECONDS);
+        cookie.setHttpOnly(true);
+        response.addCookie(cookie);
+    }
+}
