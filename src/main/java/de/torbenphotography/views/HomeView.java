@@ -33,11 +33,13 @@ public class HomeView extends Div {
         Paragraph lead = new Paragraph(
                 "Professionelle Fotografie für jeden Anlass – von Porträts über Autos bis hin zu Hochzeiten.");
 
+        Button request = new Button("Anfrage stellen",
+                event -> getUI().ifPresent(ui -> ui.navigate(RequestFormView.class)));
+        request.addThemeVariants(ButtonVariant.PRIMARY);
         Button explore = new Button("Leistungen ansehen",
                 event -> getElement().executeJs("document.getElementById('leistungen').scrollIntoView({behavior: 'smooth'})"));
-        explore.addThemeVariants(ButtonVariant.PRIMARY);
 
-        Div actions = new Div(explore);
+        Div actions = new Div(request, explore);
         actions.addClassName("hero-actions");
 
         Div content = new Div(title, lead, actions);

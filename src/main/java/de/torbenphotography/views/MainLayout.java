@@ -5,6 +5,8 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.Main;
@@ -36,6 +38,10 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
         Div navbar = new Div(toggle, createBrand(), createNavigation(), navbarActions);
         navbar.addClassName("navbar");
         navbarActions.addClassName("navbar-actions");
+        Button request = new Button("Anfrage stellen",
+                event -> getUI().ifPresent(ui -> ui.navigate(RequestFormView.class)));
+        request.addThemeVariants(ButtonVariant.PRIMARY);
+        navbarActions.add(request);
         addToNavbar(navbar);
 
         addToDrawer(createDrawerNavigation());

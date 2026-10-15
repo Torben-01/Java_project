@@ -35,6 +35,14 @@ final class CategoryViews {
         };
     }
 
+    static String headline(PhotoCategory category) {
+        return switch (category) {
+            case PORTRAIT -> "Portraitfotografie";
+            case AUTO -> "Autofotografie";
+            case HOCHZEIT -> "Hochzeitsfotografie";
+        };
+    }
+
     static String description(PhotoCategory category) {
         return switch (category) {
             case PORTRAIT -> "Dein Gesicht im Fokus – professionelle Portraitaufnahmen für jeden Anlass.";

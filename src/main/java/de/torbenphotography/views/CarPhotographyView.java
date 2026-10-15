@@ -2,16 +2,14 @@ package de.torbenphotography.views;
 
 import de.torbenphotography.images.ImageService;
 import de.torbenphotography.images.PhotoCategory;
-import de.torbenphotography.services.RequestService;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import jakarta.annotation.security.PermitAll;
 
 @Route(value = "car-photography", layout = MainLayout.class)
-@PermitAll
-public class CarPhotographyView extends CommonComponents {
+@PageTitle("Autofotografie | Torben Photography")
+public class CarPhotographyView extends CategoryView {
 
-    public CarPhotographyView(ImageService imageService, RequestService requestService) {
-        super(imageService, requestService, PhotoCategory.AUTO, "Autofotografie",
-                "Perfekte Inszenierung deines Autos – egal ob Sportwagen oder Oldtimer.");
+    public CarPhotographyView(ImageService imageService) {
+        super(imageService, PhotoCategory.AUTO);
     }
 }
