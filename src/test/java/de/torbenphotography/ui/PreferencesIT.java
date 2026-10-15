@@ -2,10 +2,10 @@ package de.torbenphotography.ui;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
+import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import org.junit.jupiter.api.Test;
-import org.vaadin.addons.dramafinder.element.ButtonElement;
 import org.vaadin.addons.dramafinder.element.SelectElement;
 
 class PreferencesIT extends AbstractUiIT {
@@ -25,13 +25,23 @@ class PreferencesIT extends AbstractUiIT {
 
     @Test
     void darkModeCanBeSwitchedAndIsRemembered() {
-        ButtonElement.getByText(page, "Hell/Dunkel umschalten").click();
+        Locator toggle = darkModeSwitch();
+        assertThat(toggle).hasAttribute("aria-checked", "false");
+
+        toggle.click();
+        assertThat(toggle).hasAttribute("aria-checked", "true");
         assertThat(page.locator("html")).hasAttribute("theme", "dark");
 
         open("/portrait");
+        assertThat(darkModeSwitch()).hasAttribute("aria-checked", "true");
         assertThat(page.locator("html")).hasAttribute("theme", "dark");
 
-        ButtonElement.getByText(page, "Hell/Dunkel umschalten").click();
+        darkModeSwitch().click();
+        assertThat(darkModeSwitch()).hasAttribute("aria-checked", "false");
         assertThat(page.locator("html")).not().hasAttribute("theme", "dark");
+    }
+
+    private Locator darkModeSwitch() {
+        return page.getByRole(AriaRole.SWITCH, new Page.GetByRoleOptions().setName("Hell/Dunkel umschalten"));
     }
 }

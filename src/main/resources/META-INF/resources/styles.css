@@ -63,6 +63,88 @@ html {
   gap: 8px;
 }
 
+/* Sun/moon slide switch for the color scheme */
+.dark-mode-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 60px;
+  height: 30px;
+  padding: 0 7px;
+  border: 1px solid var(--vaadin-border-color-secondary);
+  border-radius: 999px;
+  background: linear-gradient(135deg, oklch(0.85 0.09 230), oklch(0.93 0.06 90));
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background 0.3s ease;
+}
+
+.dark-mode-switch[aria-checked="true"] {
+  background: linear-gradient(135deg, oklch(0.3 0.08 270), oklch(0.2 0.05 260));
+}
+
+.dark-mode-switch:focus-visible {
+  outline: 2px solid var(--aura-accent-color);
+  outline-offset: 2px;
+}
+
+.dark-mode-switch-icon {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  transition: color 0.3s ease, opacity 0.3s ease;
+}
+
+.dark-mode-switch-icon vaadin-icon {
+  width: 14px;
+  height: 14px;
+}
+
+/* the icon of the active mode sits on the knob, the other one is dimmed */
+.dark-mode-switch-sun {
+  color: oklch(0.65 0.17 70);
+}
+
+.dark-mode-switch-moon {
+  color: oklch(0.45 0.05 260);
+  opacity: 0.6;
+}
+
+.dark-mode-switch[aria-checked="true"] .dark-mode-switch-sun {
+  color: oklch(0.85 0.1 85);
+  opacity: 0.6;
+}
+
+.dark-mode-switch[aria-checked="true"] .dark-mode-switch-moon {
+  color: oklch(0.35 0.1 270);
+  opacity: 1;
+}
+
+.dark-mode-switch-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.dark-mode-switch[aria-checked="true"] .dark-mode-switch-knob {
+  transform: translateX(30px);
+  background: oklch(0.85 0.02 260);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dark-mode-switch,
+  .dark-mode-switch-knob {
+    transition: none;
+  }
+}
+
 .language-select {
   width: 5.5em;
 }
