@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 /*
- * Photo categories and their image folders below images/<folder>/
+ * Photo categories and their image folders below the image directory (bilder/<folder>/)
  * cover          image for the category card on the start page
  * cover-vertikal portrait format image on the category page
  * beispiele      example pictures shown as gallery on the category page

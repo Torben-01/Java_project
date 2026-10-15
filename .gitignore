@@ -13,8 +13,8 @@ src/main/bundles/
 *.bak
 
 ### Bilder (nur lokal, Ordnerstruktur bleibt über .gitkeep erhalten) ###
-src/main/resources/META-INF/resources/images/**/*.*
-!src/main/resources/META-INF/resources/images/**/.gitkeep
+bilder/**/*.*
+!bilder/**/.gitkeep
 
 ### STS ###
 .apt_generated
