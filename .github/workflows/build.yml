@@ -1,0 +1,37 @@
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Java 21 einrichten
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      # Systembibliotheken für den Chromium von Playwright; die Version passt zu Drama Finder
+      - name: Playwright-Abhängigkeiten installieren
+        run: npx --yes playwright@1.59.0 install-deps chromium
+
+      - name: Unit- und Browsertests
+        run: ./mvnw -B verify
+
+      - name: Testberichte hochladen
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: testberichte
+          path: |
+            target/surefire-reports/
+            target/failsafe-reports/
