@@ -40,3 +40,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Lokale H2-Datenbank (dev-Profil) ###
+data/

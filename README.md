@@ -2,13 +2,33 @@
 
 ## Starten
 
-Windows:
+### Lokal ohne MySQL (dev-Profil)
 
+Für die Entwicklung reicht eine eingebettete H2-Datenbank, die unter `./data` gespeichert wird:
+
+    mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=dev
+
+In IntelliJ in der Run-Konfiguration unter *Active profiles* `dev` eintragen.
+
+### Mit MySQL
+
+Voraussetzung ist eine laufende MySQL-Instanz mit der Datenbank `photography_db`. Die Tabellen legt Hibernate
+beim Start selbst an. Die Zugangsdaten werden über Umgebungsvariablen gesetzt:
+
+| Variable      | Standard                                         |
+|---------------|--------------------------------------------------|
+| `DB_URL`      | `jdbc:mysql://localhost:3306/photography_db?...` |
+| `DB_USERNAME` | `test_user`                                      |
+| `DB_PASSWORD` | leer                                             |
+
+Windows (PowerShell):
+
+    $env:DB_PASSWORD = "..."
     mvnw.cmd spring-boot:run
 
 Linux/macOS:
 
-    ./mvnw spring-boot:run
+    DB_PASSWORD=... ./mvnw spring-boot:run
 
 Die App läuft danach unter http://localhost:8080.
 
