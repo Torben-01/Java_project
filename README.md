@@ -1,5 +1,10 @@
 # Java_project
 
+## Voraussetzungen
+
+- Java 21 oder neuer (in IntelliJ unter *File → Project Structure → SDK* einstellen)
+- Node.js wird von Vaadin beim ersten Start automatisch installiert
+
 ## Starten
 
 ### Lokal ohne MySQL (dev-Profil)

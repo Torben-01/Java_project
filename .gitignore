@@ -8,6 +8,7 @@ target/
 ### Vaadin ###
 src/main/frontend/generated/
 vite.generated.ts
+src/main/bundles/
 
 ### Bilder (nur lokal, Ordnerstruktur bleibt über .gitkeep erhalten) ###
 src/main/resources/META-INF/resources/images/**/*.*
