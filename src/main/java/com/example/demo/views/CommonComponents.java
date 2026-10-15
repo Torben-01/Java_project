@@ -2,9 +2,10 @@ package com.example.demo.views;
 
 import java.util.List;
 
+import com.example.demo.entities.Request;
 import com.example.demo.images.ImageService;
 import com.example.demo.images.PhotoCategory;
-import com.vaadin.flow.component.notification.Notification;
+import com.example.demo.services.RequestService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
@@ -14,6 +15,7 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -23,14 +25,20 @@ import com.vaadin.flow.component.textfield.TextField;
 
 public class CommonComponents extends VerticalLayout {
 
+    private final RequestService requestService;
+
     /*
      * Builds a category page with title, request form, vertical cover and example gallery
      * imageService ImageService to look up the images of the category
+     * requestService RequestService to store the submitted requests
      * category PhotoCategory whose image folders are used
      * title String headline of the page
      * subtitle String text below the headline
      */
-    protected CommonComponents(ImageService imageService, PhotoCategory category, String title, String subtitle) {
+    protected CommonComponents(ImageService imageService, RequestService requestService, PhotoCategory category,
+                               String title, String subtitle) {
+        this.requestService = requestService;
+
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
 
@@ -39,7 +47,7 @@ public class CommonComponents extends VerticalLayout {
         content.getStyle().set("flex-shrink", "0");
         imageService.findFirst(category.coverVertical())
                 .ifPresent(url -> content.add(createVerticalCover(url, title)));
-        content.add(createCommonLayout(new FormLayout()));
+        content.add(createCommonLayout(new FormLayout(), title));
 
         add(new H1(title), new Paragraph(subtitle), content);
 
@@ -50,17 +58,22 @@ public class CommonComponents extends VerticalLayout {
     }
 
     private boolean isValid(ComboBox<String> salutation, TextField firstName, TextField lastName, EmailField email, DatePicker date) {
-        return salutation.getValue() != null && !firstName.isEmpty() && !lastName.isEmpty() &&
-               email.getValue() != null && !email.isEmpty() && date.getValue() != null;
+        return salutation.getValue() != null
+                && !firstName.isEmpty()
+                && !lastName.isEmpty()
+                && email.getValue() != null
+                && !email.isEmpty()
+                && date.getValue() != null;
     }
 
-    public FormLayout createCommonLayout(FormLayout formLayout) {
-        ComboBox<String> salutation = new ComboBox<>("salutation");
+    public FormLayout createCommonLayout(FormLayout formLayout, String moduleName) {
+        ComboBox<String> salutation = new ComboBox<>("Anrede");
         salutation.setItems("Herr", "Frau", "Divers");
         salutation.setRequired(true);
 
         TextField firstName = new TextField("Vorname");
         firstName.setRequired(true);
+
         TextField lastName = new TextField("Nachname");
         lastName.setRequired(true);
 
@@ -76,7 +89,33 @@ public class CommonComponents extends VerticalLayout {
 
         Button sendButton = new Button("Anfrage senden", event -> {
             if (isValid(salutation, firstName, lastName, email, date)) {
-                Notification.show("Anfrage erfolgreich gesendet!", 3000, Notification.Position.MIDDLE);
+                Request request = new Request(
+                        salutation.getValue(),
+                        firstName.getValue(),
+                        lastName.getValue(),
+                        email.getValue(),
+                        date.getValue(),
+                        comment.getValue(),
+                        moduleName
+                );
+                requestService.save(request);
+                Notification.show("Anfrage erfolgreich gesendet und gespeichert!", 3000, Notification.Position.MIDDLE);
+                formLayout.getChildren()
+                        .filter(component -> component instanceof TextField || component instanceof EmailField
+                                || component instanceof DatePicker || component instanceof TextArea || component instanceof ComboBox)
+                        .forEach(component -> {
+                            if (component instanceof TextField textField) {
+                                textField.clear();
+                            } else if (component instanceof EmailField emailField) {
+                                emailField.clear();
+                            } else if (component instanceof DatePicker datePicker) {
+                                datePicker.clear();
+                            } else if (component instanceof TextArea textArea) {
+                                textArea.clear();
+                            } else if (component instanceof ComboBox<?> comboBox) {
+                                comboBox.clear();
+                            }
+                        });
             } else {
                 Notification.show("Bitte alle Pflichtfelder ausfüllen!", 3000, Notification.Position.MIDDLE);
             }
