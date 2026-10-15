@@ -10,6 +10,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.ColumnDefault;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -50,6 +52,11 @@ public class Request {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    @ColumnDefault("'OFFEN'")
+    private RequestStatus status = RequestStatus.OFFEN;
+
     public Request() {}
 
     public Request(PhotoCategory category) {
@@ -70,6 +77,7 @@ public class Request {
     public String getComment() { return comment; }
     public PhotoCategory getCategory() { return category; }
     public LocalDateTime getCreatedAt() { return createdAt; }
+    public RequestStatus getStatus() { return status; }
 
     public void setSalutation(String salutation) { this.salutation = salutation; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
@@ -78,4 +86,5 @@ public class Request {
     public void setDate(LocalDate date) { this.date = date; }
     public void setComment(String comment) { this.comment = comment; }
     public void setCategory(PhotoCategory category) { this.category = category; }
+    public void setStatus(RequestStatus status) { this.status = status; }
 }

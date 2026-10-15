@@ -4,6 +4,8 @@ import java.util.Locale;
 
 import de.torbenphotography.i18n.TranslationProvider;
 import de.torbenphotography.images.PhotoCategory;
+import de.torbenphotography.services.RequestService;
+import de.torbenphotography.views.admin.RequestsAdminView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -23,17 +25,22 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.HighlightConditions;
 import com.vaadin.flow.router.RouterLink;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
+import com.vaadin.flow.spring.security.AuthenticationContext;
 
 /*
  * Common layout of all pages: navigation bar on top, the current view and a footer.
  * On small screens the navigation links move into the drawer.
  */
+@AnonymousAllowed
 public class MainLayout extends AppLayout implements AfterNavigationObserver {
 
+    private final transient AuthenticationContext authenticationContext;
     private final Main content = new Main();
     private final Div navbarActions = new Div();
 
-    public MainLayout() {
+    public MainLayout(AuthenticationContext authenticationContext) {
+        this.authenticationContext = authenticationContext;
         setPrimarySection(Section.NAVBAR);
 
         DrawerToggle toggle = new DrawerToggle();
@@ -46,7 +53,7 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
                 event -> getUI().ifPresent(ui -> ui.navigate(RequestFormView.class)));
         request.addThemeVariants(ButtonVariant.PRIMARY);
         request.addClassName("desktop-only");
-        navbarActions.add(createDarkModeToggle(), createLanguageSelect(), request);
+        navbarActions.add(createDarkModeToggle(), createLanguageSelect(), request, createAccountButton());
         addToNavbar(navbar);
 
         addToDrawer(createDrawerNavigation());
@@ -99,6 +106,9 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
         for (PhotoCategory category : PhotoCategory.values()) {
             nav.add(new RouterLink(CategoryViews.title(category), CategoryViews.viewClass(category)));
         }
+        if (authenticationContext.hasRole(RequestService.ADMIN_ROLE)) {
+            nav.add(new RouterLink(getTranslation("nav.admin"), RequestsAdminView.class));
+        }
         return nav;
     }
 
@@ -107,11 +117,30 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver {
         nav.addClassName("drawer-nav");
         nav.addItem(new SideNavItem(getTranslation("nav.home"), HomeView.class, VaadinIcon.HOME.create()));
         nav.addItem(new SideNavItem(getTranslation("nav.request"), RequestFormView.class, VaadinIcon.ENVELOPE.create()));
+        if (authenticationContext.hasRole(RequestService.ADMIN_ROLE)) {
+            nav.addItem(new SideNavItem(getTranslation("nav.admin"), RequestsAdminView.class, VaadinIcon.INBOX.create()));
+        }
         for (PhotoCategory category : PhotoCategory.values()) {
             nav.addItem(new SideNavItem(CategoryViews.title(category), CategoryViews.viewClass(category),
                     CategoryViews.icon(category).create()));
         }
         return nav;
+    }
+
+    private Component createAccountButton() {
+        if (!authenticationContext.isAuthenticated()) {
+            Button login = new Button(VaadinIcon.SIGN_IN.create(),
+                    event -> getUI().ifPresent(ui -> ui.navigate(LoginView.class)));
+            login.addThemeVariants(ButtonVariant.TERTIARY);
+            login.setAriaLabel(getTranslation("nav.login"));
+            login.setTooltipText(getTranslation("nav.login"));
+            return login;
+        }
+        Button logout = new Button(VaadinIcon.SIGN_OUT.create(), event -> authenticationContext.logout());
+        logout.addThemeVariants(ButtonVariant.TERTIARY);
+        logout.setAriaLabel(getTranslation("nav.logout"));
+        logout.setTooltipText(getTranslation("nav.logout"));
+        return logout;
     }
 
     private Component createDarkModeToggle() {

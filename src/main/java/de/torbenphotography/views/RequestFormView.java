@@ -32,6 +32,7 @@ import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -40,6 +41,7 @@ import org.springframework.dao.DataAccessException;
  * Request form for a photo shoot, reachable as /anfrage or preselected as /anfrage/<category key>
  */
 @Route(value = "anfrage", layout = MainLayout.class)
+@AnonymousAllowed
 public class RequestFormView extends Div implements HasUrlParameter<String>, HasDynamicTitle {
 
     private static final Logger LOG = LoggerFactory.getLogger(RequestFormView.class);
