@@ -6,6 +6,7 @@ import java.util.List;
 
 import de.torbenphotography.entities.Request;
 import de.torbenphotography.images.PhotoCategory;
+import de.torbenphotography.services.RequestNotificationService;
 import de.torbenphotography.services.RequestService;
 import de.torbenphotography.views.legal.PrivacyView;
 import com.vaadin.flow.component.Component;
@@ -57,13 +58,15 @@ public class RequestFormView extends Div implements HasUrlParameter<String>, Has
     private static final List<String> SALUTATIONS = List.of("Herr", "Frau", "Divers");
 
     private final RequestService requestService;
+    private final RequestNotificationService notificationService;
     private final Binder<Request> binder = new Binder<>(Request.class);
     private final Select<PhotoCategory> category = new Select<>();
     private final Component formCard;
     private final Div confirmation = new Div();
 
-    public RequestFormView(RequestService requestService) {
+    public RequestFormView(RequestService requestService, RequestNotificationService notificationService) {
         this.requestService = requestService;
+        this.notificationService = notificationService;
         addClassNames("section", "request-view");
 
         H1 title = new H1(getTranslation("request.title"));
@@ -169,7 +172,8 @@ public class RequestFormView extends Div implements HasUrlParameter<String>, Has
             return;
         }
         try {
-            requestService.save(request);
+            Request saved = requestService.save(request);
+            notificationService.requestReceived(saved, getLocale());
             confirmation.removeAll();
             confirmation.add(createConfirmation(request));
             showConfirmation(true);
