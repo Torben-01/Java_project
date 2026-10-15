@@ -1,5 +1,6 @@
 package com.example.demo.views;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import com.example.demo.entities.Request;
@@ -16,14 +17,22 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.validator.EmailValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 
 public class CommonComponents extends VerticalLayout {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CommonComponents.class);
 
     private final RequestService requestService;
 
@@ -47,7 +56,7 @@ public class CommonComponents extends VerticalLayout {
         content.getStyle().set("flex-shrink", "0");
         imageService.findFirst(category.coverVertical())
                 .ifPresent(url -> content.add(createVerticalCover(url, title)));
-        content.add(createCommonLayout(new FormLayout(), title));
+        content.add(createCommonLayout(new FormLayout(), category));
 
         add(new H1(title), new Paragraph(subtitle), content);
 
@@ -57,73 +66,76 @@ public class CommonComponents extends VerticalLayout {
         }
     }
 
-    private boolean isValid(ComboBox<String> salutation, TextField firstName, TextField lastName, EmailField email, DatePicker date) {
-        return salutation.getValue() != null
-                && !firstName.isEmpty()
-                && !lastName.isEmpty()
-                && email.getValue() != null
-                && !email.isEmpty()
-                && date.getValue() != null;
-    }
+    /*
+     * Creates the request form, a valid request is stored for the given category
+     * formLayout FormLayout the fields are added to
+     * category PhotoCategory the request belongs to
+     */
+    private FormLayout createCommonLayout(FormLayout formLayout, PhotoCategory category) {
+        Binder<Request> binder = new Binder<>(Request.class);
 
-    public FormLayout createCommonLayout(FormLayout formLayout, String moduleName) {
         ComboBox<String> salutation = new ComboBox<>("Anrede");
         salutation.setItems("Herr", "Frau", "Divers");
-        salutation.setRequired(true);
+        binder.forField(salutation)
+                .asRequired("Bitte eine Anrede auswählen")
+                .bind(Request::getSalutation, Request::setSalutation);
 
         TextField firstName = new TextField("Vorname");
-        firstName.setRequired(true);
+        firstName.setMaxLength(Request.NAME_MAX_LENGTH);
+        binder.forField(firstName)
+                .asRequired("Bitte den Vornamen eingeben")
+                .bind(Request::getFirstName, Request::setFirstName);
 
         TextField lastName = new TextField("Nachname");
-        lastName.setRequired(true);
+        lastName.setMaxLength(Request.NAME_MAX_LENGTH);
+        binder.forField(lastName)
+                .asRequired("Bitte den Nachnamen eingeben")
+                .bind(Request::getLastName, Request::setLastName);
 
         EmailField email = new EmailField("E-Mail");
-        email.setRequiredIndicatorVisible(true);
-        email.setErrorMessage("Bitte eine gültige E-Mail eingeben");
+        email.setMaxLength(Request.EMAIL_MAX_LENGTH);
+        binder.forField(email)
+                .asRequired("Bitte eine E-Mail-Adresse eingeben")
+                .withValidator(new EmailValidator("Bitte eine gültige E-Mail eingeben"))
+                .bind(Request::getEmail, Request::setEmail);
 
         DatePicker date = new DatePicker("Wunschtermin");
-        date.setRequired(true);
+        date.setMin(LocalDate.now());
+        binder.forField(date)
+                .asRequired("Bitte einen Wunschtermin auswählen")
+                .withValidator(value -> !value.isBefore(LocalDate.now()), "Der Wunschtermin darf nicht in der Vergangenheit liegen")
+                .bind(Request::getDate, Request::setDate);
 
         TextArea comment = new TextArea("Kommentar");
         comment.setPlaceholder("Gibt es besondere Wünsche?");
+        comment.setMaxLength(Request.COMMENT_MAX_LENGTH);
+        binder.forField(comment).bind(Request::getComment, Request::setComment);
 
         Button sendButton = new Button("Anfrage senden", event -> {
-            if (isValid(salutation, firstName, lastName, email, date)) {
-                Request request = new Request(
-                        salutation.getValue(),
-                        firstName.getValue(),
-                        lastName.getValue(),
-                        email.getValue(),
-                        date.getValue(),
-                        comment.getValue(),
-                        moduleName
-                );
+            Request request = new Request(category);
+            if (!binder.writeBeanIfValid(request)) {
+                showNotification("Bitte alle Pflichtfelder korrekt ausfüllen!", NotificationVariant.LUMO_ERROR);
+                return;
+            }
+            try {
                 requestService.save(request);
-                Notification.show("Anfrage erfolgreich gesendet und gespeichert!", 3000, Notification.Position.MIDDLE);
-                formLayout.getChildren()
-                        .filter(component -> component instanceof TextField || component instanceof EmailField
-                                || component instanceof DatePicker || component instanceof TextArea || component instanceof ComboBox)
-                        .forEach(component -> {
-                            if (component instanceof TextField textField) {
-                                textField.clear();
-                            } else if (component instanceof EmailField emailField) {
-                                emailField.clear();
-                            } else if (component instanceof DatePicker datePicker) {
-                                datePicker.clear();
-                            } else if (component instanceof TextArea textArea) {
-                                textArea.clear();
-                            } else if (component instanceof ComboBox<?> comboBox) {
-                                comboBox.clear();
-                            }
-                        });
-            } else {
-                Notification.show("Bitte alle Pflichtfelder ausfüllen!", 3000, Notification.Position.MIDDLE);
+                binder.readBean(null);
+                showNotification("Anfrage erfolgreich gesendet!", NotificationVariant.LUMO_SUCCESS);
+            } catch (DataAccessException e) {
+                LOG.error("Anfrage konnte nicht gespeichert werden", e);
+                showNotification("Die Anfrage konnte gerade nicht gespeichert werden. Bitte später erneut versuchen.",
+                        NotificationVariant.LUMO_ERROR);
             }
         });
 
         Button backButton = new Button("Zurück", event -> event.getSource().getUI().ifPresent(ui -> ui.navigate("")));
         formLayout.add(salutation, firstName, lastName, email, date, comment, sendButton, backButton);
         return formLayout;
+    }
+
+    private void showNotification(String text, NotificationVariant variant) {
+        Notification notification = Notification.show(text, 3000, Notification.Position.MIDDLE);
+        notification.addThemeVariants(variant);
     }
 
     private Image createVerticalCover(String url, String title) {
