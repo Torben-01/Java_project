@@ -1,4 +1,4 @@
-package com.example.demo;
+package de.torbenphotography;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -9,9 +9,9 @@ import com.vaadin.flow.component.page.AppShellConfigurator;
 @SpringBootApplication
 @StyleSheet(Lumo.STYLESHEET)
 @StyleSheet(Lumo.UTILITY_STYLESHEET)
-public class DemoApplication implements AppShellConfigurator {
+public class PhotographyApplication implements AppShellConfigurator {
 
     public static void main(String[] args) {
-        SpringApplication.run(DemoApplication.class, args);
+        SpringApplication.run(PhotographyApplication.class, args);
     }
 }

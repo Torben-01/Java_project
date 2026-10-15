@@ -1,7 +1,7 @@
-package com.example.demo.services;
+package de.torbenphotography.services;
 
-import com.example.demo.entities.Request;
-import com.example.demo.repositories.RequestRepository;
+import de.torbenphotography.entities.Request;
+import de.torbenphotography.repositories.RequestRepository;
 import org.springframework.stereotype.Service;
 
 @Service

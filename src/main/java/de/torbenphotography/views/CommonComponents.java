@@ -1,12 +1,12 @@
-package com.example.demo.views;
+package de.torbenphotography.views;
 
 import java.time.LocalDate;
 import java.util.List;
 
-import com.example.demo.entities.Request;
-import com.example.demo.images.ImageService;
-import com.example.demo.images.PhotoCategory;
-import com.example.demo.services.RequestService;
+import de.torbenphotography.entities.Request;
+import de.torbenphotography.images.ImageService;
+import de.torbenphotography.images.PhotoCategory;
+import de.torbenphotography.services.RequestService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;

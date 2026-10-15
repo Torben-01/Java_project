@@ -1,6 +1,6 @@
-package com.example.demo.entities;
+package de.torbenphotography.entities;
 
-import com.example.demo.images.PhotoCategory;
+import de.torbenphotography.images.PhotoCategory;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

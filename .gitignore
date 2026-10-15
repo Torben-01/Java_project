@@ -9,6 +9,8 @@ target/
 src/main/frontend/generated/
 vite.generated.ts
 src/main/bundles/
+.vaadin-node-tasks.lock
+*.bak
 
 ### Bilder (nur lokal, Ordnerstruktur bleibt über .gitkeep erhalten) ###
 src/main/resources/META-INF/resources/images/**/*.*

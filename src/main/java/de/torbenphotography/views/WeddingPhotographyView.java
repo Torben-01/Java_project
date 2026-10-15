@@ -1,8 +1,8 @@
-package com.example.demo.views;
+package de.torbenphotography.views;
 
-import com.example.demo.images.ImageService;
-import com.example.demo.images.PhotoCategory;
-import com.example.demo.services.RequestService;
+import de.torbenphotography.images.ImageService;
+import de.torbenphotography.images.PhotoCategory;
+import de.torbenphotography.services.RequestService;
 import com.vaadin.flow.router.Route;
 
 @Route("wedding-photography")

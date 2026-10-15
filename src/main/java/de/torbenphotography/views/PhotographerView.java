@@ -1,7 +1,7 @@
-package com.example.demo.views;
+package de.torbenphotography.views;
 
-import com.example.demo.images.ImageService;
-import com.example.demo.images.PhotoCategory;
+import de.torbenphotography.images.ImageService;
+import de.torbenphotography.images.PhotoCategory;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;

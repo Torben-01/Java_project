@@ -1,4 +1,4 @@
-package com.example.demo.images;
+package de.torbenphotography.images;
 
 /*
  * Photo categories and their image folders below images/<folder>/
