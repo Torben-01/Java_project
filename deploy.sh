@@ -49,7 +49,11 @@ done
 mkdir -p bilder/startseite/hintergrund
 
 echo "Baue und starte die Website für $domain ..."
-docker compose up -d --build
+if ! docker compose up -d --build; then
+    docker compose ps
+    docker compose logs --tail 80 app
+    fail "Start fehlgeschlagen, siehe Log oben."
+fi
 
 echo "Warte, bis die App bereit ist (beim ersten Start einige Minuten) ..."
 for _ in $(seq 1 60); do

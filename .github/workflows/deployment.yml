@@ -46,6 +46,13 @@ jobs:
           docker compose logs app | grep -q "Started PhotographyApplication"
           ! docker compose logs app | grep -qi "development mode"
 
+      # Annotationen sind auch ohne Anmeldung über die GitHub-API lesbar, Job-Logs nicht
       - name: Logs bei Fehlern
         if: failure()
-        run: docker compose logs --tail 200
+        run: |
+          docker compose ps
+          docker compose logs --tail 200
+          for service in app db caddy; do
+            log=$(docker compose logs --no-color --tail 60 "$service" 2>&1 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
+            echo "::error title=Log $service::$log"
+          done
